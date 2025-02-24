@@ -9,17 +9,18 @@
       update_cache: yes
     when: ansible_distribution == "Ubuntu"
 
-  - name: install apache 2 package
+  - name: install packages for Ubuntu
     ansible.builtin.apt:
-      name: apache2
+      name:
+        - apache2
+        - libapache2-mod-php
       state: latest
     when: ansible_distribution == "Ubuntu"
 
-  - name: install php support
-    ansible.builtin.apt:
-      name: libapache2-mod-php
+  - name: install packages for Fedora
+    ansible.builtin.dnf:
+      name:
+        - httpd
+        - php
       state: latest
-    when: ansible_distribution == "Ubuntu"
-
-
-
+    when: ansible_distribution == "Fedora"
