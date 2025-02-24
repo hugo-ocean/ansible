@@ -1,3 +1,4 @@
-159.89.230.138
-159.223.122.31
+159.89.230.138 apache_package=apache2 php_package=libapache2-mod-php
+159.223.122.31 apache_package=httpd php_package=php
+
 

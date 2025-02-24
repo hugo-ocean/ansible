@@ -4,20 +4,10 @@
   become: true
   tasks:
 
-  - name: install packages for Ubuntu
-    ansible.builtin.apt:
+  - name: install packages
+    ansible.builtin.package:
       name:
-        - apache2
-        - libapache2-mod-php
+        - "{{ apache_package }}"
+        - "{{ php_package }}"
       state: latest
       update_cache: yes
-    when: ansible_distribution == "Ubuntu"
-
-  - name: install packages for Fedora
-    ansible.builtin.dnf:
-      name:
-        - httpd
-        - php
-      state: latest
-      update_cache: yes
-    when: ansible_distribution == "Fedora"
