@@ -1,0 +1,21 @@
+---
+- name: first playbook
+  hosts: all
+  become: true
+  tasks:
+
+  - name: update repository index
+    ansible.builtin.apt:
+      update_cache: yes
+
+  - name: uninstall apache 2 package
+    ansible.builtin.apt:
+      name: apache2
+      state: absent
+
+  - name: uninstall php support
+    ansible.builtin.apt:
+      name: libapache2-mod-php
+      state: absent
+
+
