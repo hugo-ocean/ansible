@@ -1,0 +1,97 @@
+---
+- name: Main Site Playbook
+  hosts: all
+  become: true
+  pre_tasks:
+
+  - name: Install updates for Fedora
+    tags: always
+    ansible.builtin.dnf:
+      update_only: true
+      update_cache: true
+    when: ansible_distribution == "Fedora"
+
+  - name: Install updates for Ubuntu
+    tags: always
+    ansible.builtin.apt:
+      upgrade: dist
+      update_cache: true
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Create User
+    tags: always
+    ansible.builtin.user:
+      name: simone
+      groups: root
+
+  - name: Add sudoers file for simone
+    tags: always
+    ansible.builtin.copy:
+      src: sudoer_simone
+      dest: /etc/sudoers.d/simone
+      owner: root
+      group: root
+      mode: 0440
+
+  - name: Add SSH Key for simone
+    tags: always
+    ansible.builtin.authorized_key:
+      user: simone
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDFc6tmDkEAvf0/noZNlnAZ7O37dhIys4IQuroVj0UB hualro@ubuntu-s-1vcpu-1gb-nyc1-02" 
+
+- name: Configure Web Servers Play
+  hosts: web_servers
+  become: true
+  tasks:
+    - name: Install apache on web servers
+      tags: apache,ubuntu
+      ansible.builtin.apt:
+        name:
+          - apache2
+          - libapache2-mod-php
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Ensure Apache is running
+      tags: ubuntu,apache
+      ansible.builtin.service:
+        name: apache2
+        state: started
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Copy HTML file for site
+      tags: apache,ubuntu
+      ansible.builtin.copy:
+        src: files/default_site.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: 644
+
+# store the result of the play into httpd
+    - name: Change email address for admin
+      tags: ubuntu,apache
+      ansible.builtin.lineinfile:
+        path: /etc/apache2/apache2.conf
+        regexp: '^ServerAdmin'
+        line: ServerAdmin admin@server.com
+      when: ansible_distribution == "Ubuntu"
+      register: httpd
+
+# use httpd variable to trigger a restart if changed
+    - name: Restart Apache
+      tags: apache,ubuntu
+      ansible.builtin.service:
+        name: apache2
+        state: restarted
+      when: httpd.changed
+
+- name: Configure DB Servers Play
+  hosts: db_servers
+  become: true
+  tasks:
+    - name: Install mariadb package
+      tags: db,fedora
+      ansible.builtin.dnf:
+        name: mariadb
+        state: latest
+      when: ansible_distribution == "Fedora"
