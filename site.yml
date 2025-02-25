@@ -30,6 +30,13 @@
           - libapache2-mod-php
       when: ansible_distribution == "Ubuntu"
 
+    - name: Ensure Apache is running
+      tags: ubuntu,apache
+      ansible.builtin.service:
+        name: apache2
+        state: started
+      when: ansible_distribution == "Ubuntu"
+
     - name: Copy HTML file for site
       tags: apache,ubuntu
       ansible.builtin.copy:
