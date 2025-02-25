@@ -46,6 +46,24 @@
         group: root
         mode: 644
 
+# store the result of the play into httpd
+    - name: Change email address for admin
+      tags: ubuntu,apache
+      ansible.builtin.lineinfile:
+        path: /etc/apache2/apache2.conf
+        regexp: '^ServerAdmin'
+        line: ServerAdmin admin@server.com
+      when: ansible_distribution == "Ubuntu"
+      register: httpd
+
+# use httpd variable to trigger a restart if changed
+    - name: Restart Apache
+      tags: apache,ubuntu
+      ansible.builtin.service:
+        name: apache2
+        state: restarted
+      when: httpd.changed
+
 - name: Configure DB Servers Play
   hosts: db_servers
   become: true
