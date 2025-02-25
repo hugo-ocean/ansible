@@ -1,0 +1,6 @@
+- name: Restart_Apache
+  tags: apache
+  ansible.builtin.service:
+     name: "{{ apache_service }}"
+     state: restarted
+#  when: apache.changed

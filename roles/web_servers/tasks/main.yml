@@ -28,9 +28,9 @@
     regexp: ^ServerAdmin
     line: ServerAdmin admin@server.com
     when: ansible_distribution == "Ubuntu"
-    register: apache
+    notify: Restart_Apache
 
-- name: Restart Apache
+- name: Restart_Apache
   tags: apache
   ansible.builtin.service:
      name: "{{ apache_service }}"
